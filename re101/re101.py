@@ -49,19 +49,13 @@ It is recommended to import the module rather than its specific contents
 
 # TODO: re.X annotations
 # TODO: include https://regexr.com/ links
-
+# TODO: https://gist.github.com/nerdsrescueme/1237767
 
 __author__ = 'Brad Solomon <brad.solomon.1124@gmail.com>'
-__all__ = []  # TODO
+__all__ = ['email', 'nanp_phonenum', 'any_tag', 'tag', 'mult_whitespace', 'mult_spaces', 'word', 'adverb', 'not_followed_by', 'followed_by', 'ipv4', 'url', 'moneysign', 'integer', 'decimal', 'number', 'zipcode', 'states']  # TODO
 __license__ = 'MIT'
 
-
 import re
-
-# https://gist.github.com/nerdsrescueme/1237767
-#
-#
-# https://stackoverflow.com/questions/1449817/what-are-some-of-the-most-useful-regular-expressions-for-programmers
 
 
 # ---------------------------------------------------------------------
@@ -80,7 +74,7 @@ any_tag = re.compile(r'<tag\b[^>]*>(.*?)</tag>')
 
 
 def tag(tagname):
-    return re.compile(r'<{tag}\b[^>]*>(.*?)</{tag}>'.format(tag))
+    return re.compile(r'<{tag}\b[^>]*>(.*?)</{tag}>'.format(tag=tagname))
 
 
 # ---------------------------------------------------------------------
@@ -122,7 +116,7 @@ def followed_by(word):
 #     regions in twenty countries primarily in North America,
 #     including the Caribbean and the U.S. territories.
 # https://en.wikipedia.org/wiki/North_American_Numbering_Plan#Modern_plan
-nanp_phonenum = re.compile(r'(?<!-)(\b|\+|)(?:1( |-|\.|\()?)?(?:\(?[2-9]\d{2}( |-|\.|\) |\))?)?[2-9]\d{2}( |-|\.)?\d{4}\b')
+nanp_phonenum = re.compile(r'(?<!-)(?:\b|\+|)(?:1(?: |-|\.|\()?)?(?:\(?[2-9]\d{2}(?: |-|\.|\) |\))?)?[2-9]\d{2}(?: |-|\.)?\d{4}\b')
 
 
 # ---------------------------------------------------------------------
