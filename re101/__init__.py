@@ -1,3 +1,3 @@
 # flake8: noqa
 
-from re101 import *
+from .re101 import *
