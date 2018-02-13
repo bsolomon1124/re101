@@ -58,3 +58,22 @@ Notes
 It is recommended to import the module rather than its specific contents directly.  A handful of object names here may conflict with common modules or objects from Python's Standard Library.
 
 For example, use :code:`import re101` with :code:`re101.email` rather than :code:`from re101 import email`, which could potentially conflict with Python's `email.py` module.
+
+-----------------
+Package structure
+-----------------
+
+.. code::
+
+    re101
+    ├── LICENSE
+    ├── MANIFEST.in
+    ├── README.rst
+    ├── contributing.rst
+    ├── re101/
+    │   ├── __init__.py
+    │   └── re101.py
+    ├── setup.py
+    └── tests/
+        ├── __init__.py
+        └── test_101.py
