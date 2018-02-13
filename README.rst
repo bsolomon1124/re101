@@ -26,7 +26,7 @@ This module pertains specifically to regexes embedded inside Python and compiled
 Disclaimer
 ----------
 
-Use these regular expressions with care.  It is unlikely that any of them cover 100.00% of the cases that they are intended to cover.  They are built to handle "99.x%"" of cases.  With all regular expressions, a balance must be made: covering an incremental 0.1% of cases often requires a large marginal amount of work and code.
+Use these regular expressions with care.  It is unlikely that any of them cover 100.00% of the cases that they are intended to cover.  They are built to handle "99.x%" of cases.  With all regular expressions, a balance must be made: covering an incremental 0.1% of cases often requires a large marginal amount of work and code.
 
 If you do notice egregious mistakes or omissions, please consider submitting an issue or pull request.  See the "Contributing" file.
 
@@ -62,4 +62,4 @@ Notes
 -----
 It is recommended to import the module rather than its specific contents directly.  A handful of object names here may conflict with common modules or objects from Python's Standard Library.
 
-For example, use `import re101` with `re101.email` rather than `from re101 import email`, which could potentially conflict with Python's `email.py` module.
+For example, use :code:`import re101` with :code:`re101.email` rather than :code:`from re101 import email`, which could potentially conflict with Python's `email.py` module.
