@@ -57,9 +57,19 @@ Citations are included for "unique" regexes that are copied from a singular sour
 -----
 Notes
 -----
+
 It is recommended to import the module rather than its specific contents directly.  A handful of object names here may conflict with common modules or objects from Python's Standard Library.
 
 For example, use :code:`import re101` with :code:`re101.email` rather than :code:`from re101 import email`, which could potentially conflict with Python's `email.py` module.
+
+--------------------------------
+Why use a full-blown repository?
+--------------------------------
+
+You might argue that this entire package could be thrown into a single GitHub gist.  Here's why I chose to structure `re101` as a Python package:
+
+1. It makes version management and pushing updates much easier.  I'll do my best to keep a nice changelog with descriptions of added or modified expressions.
+2. Easy setup and installation.  Just `pip install` and `re101` is added to `site-packages` within your path, making importing its objects hassle-free.
 
 -----------------
 Package structure
