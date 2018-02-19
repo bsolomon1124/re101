@@ -16,6 +16,8 @@ Categories of expressions that don't belong here include credit card
     only real purpose of having these is for malicious information
     retrieval.  You get the gist.
 
+Please assume these expressions are "US-centric" unless noted otherwise.
+
 Source directory
 ===============
 [1]     Goyvaerts, Jan & Steven Levithan.  Regular Expressions Cookbook,
@@ -47,9 +49,11 @@ It is recommended to import the module rather than its specific contents
     For example, use `import re101` --> `re101.email`.
 """
 
-# TODO: re.X annotations
 # TODO: include https://regexr.com/ links
 # TODO: https://gist.github.com/nerdsrescueme/1237767
+# TODO: re.X annotations
+# NOTE: careful with re.X, whitespace, and (?=
+#       https://bugs.python.org/issue15606
 
 __author__ = 'Brad Solomon <brad.solomon.1124@gmail.com>'
 __all__ = ['email', 'nanp_phonenum', 'any_tag', 'tag', 'mult_whitespace', 'mult_spaces', 'word', 'adverb', 'not_followed_by', 'followed_by', 'ipv4', 'url', 'moneysign', 'integer', 'decimal', 'number', 'zipcode', 'states']  # TODO

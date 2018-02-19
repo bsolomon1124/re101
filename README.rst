@@ -32,6 +32,8 @@ If you do notice egregious mistakes or omissions, please consider submitting an 
 
 Categories of expressions that don't belong here include credit card patterns, passwords, and social security numbers, given that the only real purpose of having these is for malicious information retrieval.  You get the gist.
 
+Please assume these expressions are "US-centric" unless noted otherwise.  For instance, the :code:`zipcodes` expression looks only for XXXXX or XXXXX-XXXX zip codes.
+
 ----------------
 Source directory
 ----------------
