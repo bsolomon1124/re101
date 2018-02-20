@@ -1,1 +1,8 @@
-TODO
+Version 0.1.1
+------------------
+- Updated README
+
+Version 0.1.0
+------------------
+- Initial commit/PyPI upload
+

@@ -11,6 +11,8 @@ Use these regular expressions with care.  It is unlikely that any of
 If you do notice egregious mistakes or omissions, please consider
     submitting an issue or pull request.  See the "Contributing" file.
 
+With regex comes responsibility:
+
 Categories of expressions that don't belong here include credit card
     patterns, passwords, and social security numbers, given that the
     only real purpose of having these is for malicious information
@@ -51,13 +53,14 @@ It is recommended to import the module rather than its specific contents
 
 # TODO: include https://regexr.com/ links
 # TODO: https://gist.github.com/nerdsrescueme/1237767
-# TODO: re.X annotations
-# NOTE: careful with re.X, whitespace, and (?=
-#       https://bugs.python.org/issue15606
+# TODO: re.X annotations (careful with re.X, whitespace, and (?=
+#       https://bugs.python.org/issue15606)
+
 
 __author__ = 'Brad Solomon <brad.solomon.1124@gmail.com>'
-__all__ = ['email', 'nanp_phonenum', 'any_tag', 'tag', 'mult_whitespace', 'mult_spaces', 'word', 'adverb', 'not_followed_by', 'followed_by', 'ipv4', 'url', 'moneysign', 'integer', 'decimal', 'number', 'zipcode', 'states']  # TODO
+__all__ = ['email', 'nanp_phonenum', 'mult_whitespace', 'mult_spaces', 'word', 'adverb', 'not_followed_by', 'followed_by', 'ipv4', 'url', 'moneysign', 'integer', 'decimal', 'number', 'zipcode', 'states']  # TODO
 __license__ = 'MIT'
+
 
 import re
 
@@ -69,21 +72,7 @@ email = re.compile(r"^\"*[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&@'*+/=?^_`
 
 
 # ---------------------------------------------------------------------
-# *Valid HTML tag + contents*.
-
-# TODO: sure we want to implement this>?
-# https://stackoverflow.com/a/1732454/7954504
-
-any_tag = re.compile(r'<tag\b[^>]*>(.*?)</tag>')
-
-
-def tag(tagname):
-    return re.compile(r'<{tag}\b[^>]*>(.*?)</{tag}>'.format(tag=tagname))
-
-
-# ---------------------------------------------------------------------
 # *Whitespace*
-
 
 # 2+ consecutive of any whitespace
 # \s --> ` \t\n\r\f\v`
@@ -126,7 +115,7 @@ nanp_phonenum = re.compile(r'(?<!-)(?:\b|\+|)(?:1(?: |-|\.|\()?)?(?:\(?[2-9]\d{2
 # ---------------------------------------------------------------------
 # *Dates & times*
 
-date = None  # TODO
+# TODO
 
 
 # ---------------------------------------------------------------------
@@ -153,8 +142,8 @@ ipv4 = re.compile(r'\b(([0]{1,2}[0-7]|[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[
 # For example, "0000:0000:0000:0000:0000:0abc:0007:0def" can be compressed
 # to "::abc:7:def".
 # See also: https://tools.ietf.org/html/rfc4291.html
-ipv6 = None  # TODO
-ip = ipv4  # TODO
+
+# TODO - ipv6
 
 
 # ---------------------------------------------------------------------
@@ -179,13 +168,15 @@ moneysign = (u'\u0024\u00A2\u00A3\u00A4\u00A5\u058F\u060B\u09F2\u09F3'
              u'\u20B8\u20B9\u20BA\u20BB\u20BC\u20BD\u20BE\u20BF\uA838\uFDFC'
              u'\uFE69\uFF04\uFFE0\uFFE1\uFFE5\uFFE6')
 
-integer = r'[+-]*\b[0-9]{1,3}(,[0-9]{3})*'
-decimal = r'[+-]*(\b[0-9]{1,3}(,[0-9]{3})*\.[0-9]+\b|\b[0-9]{1,3}(,[0-9]{3})*\.[0-9]*(?!\d)|(?<!\d)\.\d+\b)'
-number = re.compile(r'(' + r'|'.join((integer, decimal)) + r')')
+
+
+integer = r'\b(?<![,.])\d+(?![,.])\b|\b(?<![,.])[+-]*\b[0-9]{1,3}(,[0-9]{3})*(?![,.])\b'
+decimal = r'[+-]*\b[0-9]{1,3}(,[0-9]{3})*\.[0-9]+\b|[+-]*\b[0-9]{1,3}(,[0-9]{3})*\.[0-9]*(?!\d)|[+-]*(?<!\d)\.\d+\b'
+number = re.compile(r'|'.join((integer, decimal)))
 integer = re.compile(integer)
 decimal = re.compile(decimal)
 
-currency = None  # TODO: deal with front/back-end symbol
+# TODO: currency; deal with front/back-end symbol
 
 
 # ---------------------------------------------------------------------

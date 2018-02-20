@@ -1,14 +1,18 @@
-from re101 import *  # noqa
+import re101
 
 
-def validate_one(string, regex):
+def _validate_one(string, regex):
     return bool(regex.match(string))
 
 
-def test(valid, invalid, regex):
-    assert all(validate_one(i, regex) for i in valid)
-    assert sum(validate_one(i, regex) for i in invalid) == 0
+def _test_valid_invalid(valid, invalid, regex):
+    assert all(_validate_one(i, regex) for i in valid)
+    assert sum(_validate_one(i, regex) for i in invalid) == 0
 
+def test_valid_invalid():
+    for k, v in cases.items():
+        _test_valid_invalid(valid=v['valid'], invalid=v['invalid'],
+                            regex=getattr(re101, k))
 
 # Each key is a variable defined in re101.py.  Each key is a dictionary
 #     consisting of both valid and invalid cases for testing.
@@ -80,18 +84,72 @@ cases = {
             '+2.',
             '-2.5'
             ],
-        invalid=[]  # TODO
+        invalid=[
+            '2,000',
+            '6,999,999',
+            '4000',
+            '4',
+            '0',
+            '076'
+            ]
         ),
 
     'integer': dict(
         valid=[
             '2,000',
+            '6,999,999',
             '4000',
+            '50000',
             '4',
             '0',
             '076'
             ],
-        invalid=[]  # TODO
+        invalid=[
+            '2,,000',
+            '299,1234,12345',
+            '4000,000',
+            '4.00',
+            '4.',
+            '.1',
+            '0.1',
+            '$100',
+            '2,000,000.00'
+            ]
+        ),
+
+    'number': dict(
+        valid=[
+            '2,000',
+            '6,999,999',
+            '4000',
+            '50000',
+            '4',
+            '0',
+            '076',
+            '1.',
+            '2.0',
+            '0.2',
+            '.2',
+            '.225',
+            '25.05',
+            '250.50',
+            '0.',
+            '1,225,000.0',
+            '4,500.5'
+            '255.05',
+            '.05',
+            '+.05',
+            '-.05',
+            '+2.',
+            '-2.5'
+            ],
+        invalid=[
+            '2,,000',
+            '299,1234,12345',
+            '$100',
+            '2,0002,00022.002'
+            '076.00.004.00'
+            ]
         ),
 
     'nanp_phonenum': dict(

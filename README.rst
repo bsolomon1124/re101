@@ -7,6 +7,8 @@ A compendium of commonly-used regular expressions.
 This module pertains specifically to regexes embedded inside Python and compiled with Python's `re
 <https://docs.python.org/3/library/re.html>`_ module.
 
+All importable objects are compiled regular expressions.  For instance, `nanp_phonenum` matches sequences following the North American Number Plan (NANP) format.  In plain English, this is what would qualify as a "North American telephone number":
+
 .. code:: python
 
     >>> # Capture sequences following the
@@ -22,6 +24,17 @@ This module pertains specifically to regexes embedded inside Python and compiled
     >>> nanp_phonenum.findall(text)
     ['+1 (834) 345.1254', '892-345-3428', '541-7625', '5483264584']
 
+Currently, the package supports regexes related to:
+
+- email addresses
+- whitespace
+- words/tokens
+- phone numbers
+- IP addresses
+- URLs
+- integers, decimals, numbers
+- geographic information
+
 ----------
 Disclaimer
 ----------
@@ -30,7 +43,7 @@ Use these regular expressions with care.  It is unlikely that any of them cover 
 
 If you do notice egregious mistakes or omissions, please consider submitting an issue or pull request.  See the "Contributing" file.
 
-Categories of expressions that don't belong here include credit card patterns, passwords, and social security numbers, given that the only real purpose of having these is for malicious information retrieval.  You get the gist.
+With regex comes responsibility.  Categories of expressions that don't belong here include credit card patterns, passwords, and social security numbers, given that the only real purpose of having these is for malicious information retrieval.  You get the gist.
 
 Please assume these expressions are "US-centric" unless noted otherwise.  For instance, the :code:`zipcodes` expression looks only for XXXXX or XXXXX-XXXX zip codes.
 
