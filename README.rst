@@ -96,8 +96,7 @@ Package structure
     ├── README.rst
     ├── contributing.rst
     ├── re101/
-    │   ├── __init__.py
-    │   └── re101.py
+    │   └── __init__.py
     ├── setup.py
     └── tests/
         ├── __init__.py

@@ -1,4 +1,4 @@
-import re101
+from re101 import *  # noqa
 
 
 def _validate_one(string, regex):
