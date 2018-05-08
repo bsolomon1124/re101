@@ -1,4 +1,8 @@
-from re101 import *  # noqa
+import re
+
+import re101
+
+SRE_PATTERN = type(re.compile(''))
 
 
 def _validate_one(string, regex):
@@ -11,11 +15,15 @@ def _test_valid_invalid(valid, invalid, regex):
 
 def test_valid_invalid():
     for k, v in cases.items():
+        regex = getattr(re101, k)
+        # Make sure we didn't acidentally insert a special class.
+        assert isinstance(regex, SRE_PATTERN)
         _test_valid_invalid(valid=v['valid'], invalid=v['invalid'],
-                            regex=getattr(re101, k))
+                            regex=regex)
 
 # Each key is a variable defined in re101.py.  Each key is a dictionary
-#     consisting of both valid and invalid cases for testing.
+# consisting of both valid and invalid cases for testing.
+
 cases = {
 
     'email': dict(
@@ -65,7 +73,36 @@ cases = {
             ]
         ),
 
-    'decimal': dict(
+    'nanp_phonenum': dict(
+        valid=[
+            '610-249-3976',
+            '1-213-555-0123',
+            '234-911-5678',
+            '675-0100',
+            '+1 484 799 4985',
+            '1 484 799 4985',
+            '1 8005551234',
+            '4847985154',
+            '1 (484) 799-4985',
+            '1.484.799.4985',
+            '1(484)799-4985',
+            '(484) 799-4985',
+            ],
+        invalid=[
+            '159-2653',
+            '1 159 2653',
+            '123-234-5678',
+            '314-159-2653'
+            ]
+        )
+    }
+
+
+# TODO
+
+class_cases = {
+
+    'Decimal': dict(
         valid=[
             '1.',
             '2.0',
@@ -94,7 +131,7 @@ cases = {
             ]
         ),
 
-    'integer': dict(
+    'Integer': dict(
         valid=[
             '2,000',
             '6,999,999',
@@ -117,7 +154,7 @@ cases = {
             ]
         ),
 
-    'number': dict(
+    'Number': dict(
         valid=[
             '2,000',
             '6,999,999',
@@ -151,27 +188,4 @@ cases = {
             '076.00.004.00'
             ]
         ),
-
-    'nanp_phonenum': dict(
-        valid=[
-            '610-249-3976',
-            '1-213-555-0123',
-            '234-911-5678',
-            '675-0100',
-            '+1 484 799 4985',
-            '1 484 799 4985',
-            '1 8005551234',
-            '4847985154',
-            '1 (484) 799-4985',
-            '1.484.799.4985',
-            '1(484)799-4985',
-            '(484) 799-4985',
-            ],
-        invalid=[
-            '159-2653',
-            '1 159 2653',
-            '123-234-5678',
-            '314-159-2653'
-            ]
-        )
     }

@@ -1,3 +1,5 @@
+# flake8: ignore=E501
+
 """Commonly-used regular expressions.
 
 DISCLAIMER
@@ -58,7 +60,7 @@ It is recommended to import the module rather than its specific contents
 
 
 __author__ = 'Brad Solomon <brad.solomon.1124@gmail.com>'
-__all__ = ['email', 'nanp_phonenum', 'mult_whitespace', 'mult_spaces', 'word', 'adverb', 'not_followed_by', 'followed_by', 'ipv4', 'url', 'moneysign', 'integer', 'decimal', 'number', 'zipcode', 'states']  # TODO
+__all__ = ['email', 'nanp_phonenum', 'mult_whitespace', 'mult_spaces', 'word', 'adverb', 'not_followed_by', 'followed_by', 'ipv4', 'url', 'moneysign', 'Number', 'Integer', 'Decimal', 'zipcode', 'states']  # TODO
 __license__ = 'MIT'
 
 
@@ -153,7 +155,9 @@ ipv4 = re.compile(r'\b(([0]{1,2}[0-7]|[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[
 # RFC 1738; format is <scheme>:<scheme-specific-part>.
 # This means that 'google.com' is not in itself a valid URL.
 # See http://www.ietf.org/rfc/rfc1738.txt
-url = re.compile('\b(https?|ftp|file)://.+\/?\b')
+url = re.compile(r'\b(https?|ftp|file)://.+\/?\b')
+
+# TODO: "loose" URL (non-strict syntax)
 
 
 # ---------------------------------------------------------------------
@@ -168,20 +172,110 @@ moneysign = (u'\u0024\u00A2\u00A3\u00A4\u00A5\u058F\u060B\u09F2\u09F3'
              u'\u20B8\u20B9\u20BA\u20BB\u20BC\u20BD\u20BE\u20BF\uA838\uFDFC'
              u'\uFE69\uFF04\uFFE0\uFFE1\uFFE5\uFFE6')
 
-
-
-integer = r'\b(?<![,.])\d+(?![,.])\b|\b(?<![,.])[+-]*\b[0-9]{1,3}(,[0-9]{3})*(?![,.])\b'
-decimal = r'[+-]*\b[0-9]{1,3}(,[0-9]{3})*\.[0-9]+\b|[+-]*\b[0-9]{1,3}(,[0-9]{3})*\.[0-9]*(?!\d)|[+-]*(?<!\d)\.\d+\b'
-number = re.compile(r'|'.join((integer, decimal)))
-integer = re.compile(integer)
-decimal = re.compile(decimal)
-
 # TODO: currency; deal with front/back-end symbol
+
+# For the lexical structure for a "number," we steal from the Postgres
+# docs, with a few additions:
+#
+#     Numeric constants are accepted in these general forms:
+#
+#     digits
+#     digits.[digits][e[+-]digits]
+#     [digits].digits[e[+-]digits]
+#     digitse[+-]digits
+#
+#     where digits is one or more decimal digits (0 through 9).
+#     At least one digit must be before or after the decimal point,
+#     if one is used. At least one digit must follow the exponent marker
+#     (e), if one is present.  Brackets indicate optionality.
+#
+# To this, we add the optionality to use commas and allow or disallow
+# leading zeros.
+#
+# Four different variations of a "number" regex based on whether
+# we want to allow leading zeros and/or commas.
+# Thanks @WiktorStribiżew for the lookahead:
+# https://stackoverflow.com/a/50223631/7954504
+
+number_combinations = {
+    (True, True):  # Leading zeros permitted; commas permitted.
+        (
+            r'(?:(?<= )|(?<=^))(?<!\.)\d+(?:,\d{3})*(?= |$)',
+            r'(?:(?<= )|(?<=^))(?<!\.)\d+(?:,\d{3})*\.\d+(?:[eE][+-]?\d+)?(?= |$)',
+            r'(?:(?<= )|(?<=^))(?<!\d)\.\d+(?:[eE][+-]?\d+)?(?= |$)'
+        ),
+    (True, False):  # Leading zeros permitted; commas not permitted.
+        (
+            r'(?:(?<= )|(?<=^))(?<!\.)\d+(?= |$)',
+            r'(?:(?<= )|(?<=^))(?<!\.)\d+\.\d+(?:[eE][+-]?\d+)?(?= |$)',
+            r'(?:(?<= )|(?<=^))(?<!\d)\.\d+(?:[eE][+-]?\d+)?(?= |$)'
+        ),
+    (False, True):  # Leading zeros not permitted; commas permitted.
+        (
+            r'(?:(?<= )|(?<=^))(?<!\.)[1-9]+\d*(?:,\d{3})*(?= |$)',
+            r'(?:(?<= )|(?<=^))(?<!\.)[1-9]+\d*(?:,\d{3})*\.\d+(?:[eE][+-]?\d+)?(?= |$)',
+            r'(?:(?<= )|(?<=^))(?<!\d)\.\d+(?:[eE][+-]?\d+)?(?= |$)'
+        ),
+    (False, False):  # Neither permitted.
+        (
+            r'(?:(?<= )|(?<=^))(?<!\.)[1-9]+\d*(?= |$)',
+            r'(?:(?<= )|(?<=^))(?<!\.)[1-9]+\d*\.\d+(?:[eE][+-]?\d+)?(?= |$)',
+            r'(?:(?<= )|(?<=^))(?<!\d)\.\d+(?:[eE][+-]?\d+)?(?= |$)'
+        )
+    }
+
+
+class Number(object):
+    """A regex to match a wide syntax for 'standalone' numbers.
+
+    "Number" is an inclusive term covering:
+    - "Integers": 12, 1,234, 094,509.
+    - "Decimals": 12.0, .5, 4., 12,000.00
+    - Scientific notation: 12.0e-03, 1E-5
+
+    The class instance is a compiled regex.
+
+    Parameters
+    ----------
+    allow_leading_zeros: bool, default True
+        Permit leading zeros on numbers.  (I.e. 042, 095,000, 09.05)
+    allow_commas: bool, default True
+        If True, allow *syntactically correct* commas.  (I.e. 1,234.09)
+    flags: {int, enum.IntFlag}, default 0
+        Passed to `re.compile()`.
+
+    Returns
+    -------
+    _sre.SRE_Pattern, the object produced by `re.compile()`
+    """
+
+    def __new__(cls, allow_leading_zeros=True, allow_commas=True, flags=0):
+        key = allow_leading_zeros, allow_commas
+        pattern = '|'.join(number_combinations[key])
+        return re.compile(pattern, flags=flags)
+
+
+class Integer(object):
+    def __new__(cls, allow_leading_zeros=True, allow_commas=True, flags=0):
+        key = allow_leading_zeros, allow_commas
+        # The only difference here is we use 0th element only.
+        pattern = number_combinations[key][0]
+        return re.compile(pattern, flags=flags)
+
+
+class Decimal(object):
+    def __new__(cls, allow_leading_zeros=True, allow_commas=True, flags=0):
+        key = allow_leading_zeros, allow_commas
+        # 0th element is for Integer; other are for Decimal.
+        pattern = '|'.join(number_combinations[key][1:])
+        return re.compile(pattern, flags=flags)
 
 
 # ---------------------------------------------------------------------
 # *Geographic info*
 
+# Five digits with optional 4-digit extension
+# https://en.wikipedia.org/wiki/ZIP_Code#ZIP+4
 zipcode = re.compile(r'\b[0-9]{5}(?:-[0-9]{4})?\b(?!-)')
 
 # Source: [7]

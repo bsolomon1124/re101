@@ -12,7 +12,7 @@ setup(
     name='re101',
     description='A back-pocket regex cookbook',
     long_description=long_description,
-    version='0.1.1',
+    version='0.2.0',
     author='Brad Solomon',
     author_email='brad.solomon.1124@gmail.com',
     url='https://github.com/bsolomon1124/re101',
