@@ -13,6 +13,7 @@ def _test_valid_invalid(valid, invalid, regex):
     assert all(_validate_one(i, regex) for i in valid)
     assert sum(_validate_one(i, regex) for i in invalid) == 0
 
+
 def test_valid_invalid():
     for k, v in cases.items():
         regex = getattr(re101, k)
@@ -20,6 +21,7 @@ def test_valid_invalid():
         assert isinstance(regex, SRE_PATTERN)
         _test_valid_invalid(valid=v['valid'], invalid=v['invalid'],
                             regex=regex)
+
 
 # Each key is a variable defined in re101.py.  Each key is a dictionary
 # consisting of both valid and invalid cases for testing.
