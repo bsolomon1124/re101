@@ -1,34 +1,15 @@
 import re
 
+import pytest
+
 import re101
-
-SRE_PATTERN = type(re.compile(''))
-
-
-def _validate_one(string, regex):
-    return bool(regex.match(string))
-
-
-def _test_valid_invalid(valid, invalid, regex):
-    assert all(_validate_one(i, regex) for i in valid)
-    assert sum(_validate_one(i, regex) for i in invalid) == 0
-
-
-def test_valid_invalid():
-    for k, v in cases.items():
-        regex = getattr(re101, k)
-        # Make sure we didn't acidentally insert a special class.
-        assert isinstance(regex, SRE_PATTERN)
-        _test_valid_invalid(valid=v['valid'], invalid=v['invalid'],
-                            regex=regex)
-
 
 # Each key is a variable defined in re101.py.  Each key is a dictionary
 # consisting of both valid and invalid cases for testing.
 
 cases = {
 
-    'email': dict(
+    'EMAIL': dict(
         valid=[
             'b@d.net',
             '1@d.net',
@@ -50,13 +31,13 @@ cases = {
             'A@b@c@example.com',
             'asterisk_domain@foo.*',
             'just"not"right@example.com',
-            'this is"not\allowed@example.com',
-            'a"b(c)d,e:f;gi[j\k]l@example.com',
-            'this\ still"not\allowed@example.com'
+            r'this is"not\allowed@example.com',
+            r'a"b(c)d,e:f;gi[j\k]l@example.com',
+            r'this\ still"not\allowed@example.com'
             ]
         ),
 
-    'ipv4': dict(
+    'IPV4': dict(
         valid=[
             '192.0.2.1',
             '192.168.0.1',
@@ -75,7 +56,7 @@ cases = {
             ]
         ),
 
-    'nanp_phonenum': dict(
+    'US_PHONENUM': dict(
         valid=[
             '610-249-3976',
             '1-213-555-0123',
@@ -96,11 +77,115 @@ cases = {
             '123-234-5678',
             '314-159-2653'
             ]
+        ),
+
+    # TODO
+    # 'LOOSE_GLOBAL_PHONENUM': dict(
+    #     valid=[
+    #         '610-249-3976',
+    #         '1-213-555-0123',
+    #         '234-911-5678',
+    #         '675-0100',
+    #         '+1 484 799 4985',
+    #         '1 484 799 4985',
+    #         '1 8005551234',
+    #         '4847985154',
+    #         '415 555-2671',
+    #         '+1 415.555.2671',
+    #         '+ 1 4155552671',
+    #         '020 7183 8750',
+    #         '+44 20 7183 8750'
+    #         ],
+    #     invalid=[
+    #         '159-2653',
+    #         '1 159 2653',
+    #         ]
+    #     ),
+
+    'STRICT_URL': dict(
+        valid=[
+            'https://www.google.com',
+            'https://www.sec.gov/edgar/searchedgar/companysearch.html'
+            ],
+        invalid=[
+            'www.google.com',
+            'google.com',
+            'https:// this is a website.com/ext'
+            ]
+        ),
+
+    'LOOSE_URL': dict(
+        valid=[
+            'https://www.google.com',
+            'https://www.sec.gov/edgar/searchedgar/companysearch.html',
+            'www.google.com',
+            'www.group.me'
+            ],
+        invalid=[
+            'https:// this is a website.com/ext',
+            'www. this is a website.com/ext'
+            ]
+        ),
+
+    'USERNAME': dict(
+        valid=[
+            'username is abcdef',
+            'username: abcd__ie8'
+            'USERNAME : CAPTAIN_KIRK',
+            ],
+        invalid=[
+            'Username cannot be found',
+            'Invalid password'
+            ]
+        ),
+
+    'PASSWORD': dict(
+        valid=[
+            'pw is abcdef',
+            'password: abcd__ie8'
+            'PASSWORD : CAPTAIN_KIRK',
+            ],
+        invalid=[
+            'Password cannot be found',
+            'Invalid password'
+            ]
+        ),
+
+    'STRICT_SSN': dict(
+        valid=[
+            '123-45-6789',
+            'my ssn is 123-45-6789'
+            ],
+        invalid=[
+            '123-456789',
+            'my ssn is 123 45 6789',
+            '123456789'
+            ]
+        ),
+
+    'LOOSE_SSN': dict(
+        valid=[
+            '123-45-6789',
+            'my ssn is 123-45-6789'
+            '123 45 6789',
+            'my ssn is 123456789'
+            ],
+        invalid=[
+            '12345678',
+            '12-345-67890'
+            ]
+        ),
+
+    'STRICT_CREDIT_CARD': dict(
+        valid=[
+            '4400 6940 3849 3940',
+            '3791-485930-30495'
+            ],
+        invalid=[
+            '1234567890'
+            ]
         )
     }
-
-
-# TODO
 
 class_cases = {
 
@@ -191,3 +276,45 @@ class_cases = {
             ]
         ),
     }
+
+
+@pytest.mark.parametrize(
+    'regex,string',
+    [(getattr(re101, k), i) for k, v in cases.items() for i in v['valid']]
+)
+def test_regex_search_positive_constant(regex: re.Pattern, string: str):
+    assert isinstance(regex, re.Pattern)
+    assert bool(regex.search(string))
+
+
+@pytest.mark.parametrize(
+    'regex,string',
+    [(getattr(re101, k), i) for k, v in cases.items() for i in v['invalid']]
+)
+def test_regex_search_negative_constant(regex: re.Pattern, string: str):
+    assert isinstance(regex, re.Pattern)
+    assert not bool(regex.search(string))
+
+
+# @pytest.mark.parametrize(
+#     'regex,string',
+#     [(getattr(re101, k)(), i) for k, v in class_cases.items() for i in v['valid']]
+# )
+# def test_regex_search_positive_constant(regex: re.Pattern, string: str):
+#     assert isinstance(regex, re.Pattern)
+#     assert bool(regex.search(string))
+
+
+# @pytest.mark.parametrize(
+#     'regex,string',
+#     [(getattr(re101, k)(), i) for k, v in class_cases.items() for i in v['invalid']]
+# )
+# def test_regex_search_negative_constant(regex: re.Pattern, string: str):
+#     assert isinstance(regex, re.Pattern)
+#     assert not bool(regex.search(string))
+
+
+def test_deprecated_regex():
+    depr = [getattr(re101, i) for i in dir(re101)
+            if isinstance(getattr(re101, i), re101._DeprecatedRegex)]
+    assert depr  # TODO
