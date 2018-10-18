@@ -316,25 +316,9 @@ _cards = dict(
 STRICT_CREDIT_CARD = re.compile(r'|'.join(_cards.values()))
 LOOSE_CREDIT_CARD = re.compile(r'[0-9-]{13,20}')
 
-# Functions, classes that make re.Patterns with __new__(), and constants
-# ---------------------------------------------------------------------
-__all__ = (
-    'not_followed_by',
-    'followed_by',
-    'Number',
-    'Integer',
-    'Decimal',
-    'extract_pw',
-    'extract_un',
-)
-# Bring uppercase constants into the namespace.
-_locals = locals()
-__all__ = __all__ + tuple(
-    i for i in _locals if i.isupper() and not i.startswith('_'))
-del _locals
-
 
 class _DeprecatedRegex(object):
+    """Warn about deprecated expressions, but keep their functionality."""
     def __init__(self, regex: re.Pattern, old: str, new=str.upper):
         if callable(new):
             new = new(old)
@@ -344,6 +328,7 @@ class _DeprecatedRegex(object):
         self.new = new
 
     def __getattr__(self, name):
+        """Call __getattr__ for the newly-named re.Pattern."""
         if 'name' in {'old' 'new', 'regex', 'msg'}:
             return getattr(self, name)
         warnings.warn(self.msg, FutureWarning, stacklevel=2)
@@ -361,3 +346,20 @@ moneysign = _DeprecatedRegex(regex=MONEYSIGN, old='moneysign')
 zipcode = _DeprecatedRegex(regex=US_ZIPCODE, old='zipcode', new='US_ZIPCODE')
 state = _DeprecatedRegex(regex=US_STATE, old='state', new='US_STATE')
 nanp_phonenum = _DeprecatedRegex(regex=US_PHONENUM, old='state', new='US_PHONENUM')
+
+# Functions, classes that make re.Patterns with __new__(), and constants
+# ---------------------------------------------------------------------
+__all__ = (
+    'not_followed_by',
+    'followed_by',
+    'Number',
+    'Integer',
+    'Decimal',
+    'extract_pw',
+    'extract_un',
+)
+# Bring uppercase constants into the namespace.
+_locals = locals()
+__all__ = __all__ + tuple(
+    i for i in _locals if i.isupper() and not i.startswith('_'))
+del _locals
