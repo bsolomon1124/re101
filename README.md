@@ -1,8 +1,8 @@
-# `re101`
+# re101
 
 A compendium of commonly-used regular expressions.
 
-This module pertains specifically to regexes embedded inside Python and compiled with Python's [`re`](https://docs.python.org/3/library/re.html).
+This package pertains specifically to regular expressions embedded inside Python and compiled with Python's [`re`](https://docs.python.org/3/library/re.html) module.
 
 ----
 
