@@ -1,3 +1,9 @@
+Version 0.3.3 (2018-10-19)
+-------------------------------------
+- Removed NON_US_PHONENUM and added E164_PHONENUM.  The latter is more limited
+  in scope.
+
+
 Version 0.3.0 (2018-10-18)
 -------------------------------------
 - Introduced convention of UPPERCASE for re.Pattern constants

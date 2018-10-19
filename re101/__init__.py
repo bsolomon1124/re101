@@ -1,10 +1,19 @@
 """A compendium of commonly-used regular expressions.
 
-Conventions:
-- Compiled regular expressions (of type re.Pattern) are in UPPERCASE.
-- Utility functions are in lower_case.
-- Classes with __new__() constructors, which take a few configuration options
-and produce an re.Pattern type, are in CamelCase.
+Objects exported by the package may be in either `UPPERCASE`,
+`CamelCase`, or `lower_case`:
+
+- `UPPERCASE`: These are compiled regular expressions, of type
+  `re.Pattern`, which is the result of `re.compile()`.
+
+- `CamelCase`: These are classes whose `__new__()` method returns
+  a compiled regular expression, but takes a few additional parameters
+  that add optionality to the compiled result.  For instance, the
+  `Number`class lets you allow or disallow leading zeros and commas.
+
+- `lower_case`: These are traditional functions built around the
+  package's regex constants.  They do not share any consistency in their
+  call syntax or result type.
 
 Sources
 =======
@@ -82,18 +91,10 @@ def followed_by(word: str) -> re.Pattern:
 #     including the Caribbean and the U.S. territories.
 # https://en.wikipedia.org/wiki/North_American_Numbering_Plan#Modern_plan
 US_PHONENUM = re.compile(r'(?<!-)(?:\b|\+|)(?:1(?: |-|\.|\()?)?(?:\(?[2-9]\d{2}(?: |-|\.|\) |\))?)?[2-9]\d{2}(?: |-|\.)?\d{4}\b')
-# NON_US_PHONENUM = re.compile(r'\+(?:[0-9] ?){6,14}[0-9]')  # Source: [1]
 
-_global_phonenum = (
-    r'(?:\+ ?)?'                  # Optional leading plus, followed by optional space
-    r'(?:1(?: \d{3})?|\d{2,3})'   # Country code
-    r'[ -.]?'                     # Optional sep: space, hyphen, or period
-    r'\d{2,3}'                    # Area code
-    r'[ -.]?'                     # Optional sep: space, hyphen, or period
-    r'\d{3,4}(?:[ -.]?\d{4})?'    # Phone number
-)
-
-LOOSE_GLOBAL_PHONENUM = re.compile(_global_phonenum)
+# E.164 ITU phone number format
+# https://www.itu.int/rec/dologin_pub.asp?lang=e&id=T-REC-E.164-201011-I!!PDF-E&type=items
+E164_PHONENUM= re.compile(r'\+?[1-9]\d{1,14}\b')
 # ---------------------------------------------------------------------
 
 # ---------------------------------------------------------------------
