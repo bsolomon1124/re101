@@ -172,7 +172,8 @@ _domains = (
 
 # Hinge on the presence of a domain, and be liberal about
 # what comes before it.
-LOOSE_URL_DOMAIN = re.compile(r'\b\S+' + f'(?:{"|".join(_domains)})')
+LOOSE_URL_DOMAIN = re.compile(r'\b\S+' + f'(?:{"|".join(_domains)})'
+                              + r'\S*\b')
 # ---------------------------------------------------------------------
 # *Numbers and currency*
 

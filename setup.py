@@ -13,7 +13,7 @@ setup(
     description='A back-pocket regex cookbook',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    version='0.3.4',
+    version='0.3.5',
     author='Brad Solomon',
     author_email='brad.solomon.1124@gmail.com',
     url='https://github.com/bsolomon1124/re101',

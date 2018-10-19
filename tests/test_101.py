@@ -108,7 +108,8 @@ cases = {
         valid=[
             'group.me',
             'bit.ly/',
-            'https://www.google.com'
+            'https://www.google.com',
+            'https://www.sec.gov/edgar/searchedgar/companysearch.html'
             ],
         invalid=[
 
