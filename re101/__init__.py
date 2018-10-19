@@ -157,7 +157,7 @@ MONEYSIGN = (u'\u0024\u00A2\u00A3\u00A4\u00A5\u058F\u060B\u09F2\u09F3'
 # Thanks @WiktorStribiżew for the lookahead:
 # https://stackoverflow.com/a/50223631/7954504
 
-number_combinations = {
+_number_combinations = {
     (True, True): (
         # Leading zeros permitted; commas permitted.
         r'(?:(?<= )|(?<=^))(?<!\.)\d+(?:,\d{3})*(?= |$)',
@@ -216,7 +216,7 @@ class Number(object):
         flags=0
     ) -> re.Pattern:
         key = allow_leading_zeros, allow_commas
-        pattern = '|'.join(number_combinations[key])
+        pattern = '|'.join(_number_combinations[key])
         return re.compile(pattern, flags=flags)
 
 
@@ -229,7 +229,7 @@ class Integer(object):
     ) -> re.Pattern:
         key = allow_leading_zeros, allow_commas
         # The only difference here is we use 0th element only.
-        pattern = number_combinations[key][0]
+        pattern = _number_combinations[key][0]
         return re.compile(pattern, flags=flags)
 
 
@@ -242,7 +242,7 @@ class Decimal(object):
     ) -> re.Pattern:
         key = allow_leading_zeros, allow_commas
         # 0th element is for Integer; other are for Decimal.
-        pattern = '|'.join(number_combinations[key][1:])
+        pattern = '|'.join(_number_combinations[key][1:])
         return re.compile(pattern, flags=flags)
 
 
@@ -390,13 +390,6 @@ def extract_us_drivers_license(
 
 _dob = r'd(?:ate )?o(?:f )?b(?:irth)??'
 DOB = make_userinfo_re(start=_dob)
-
-# (Some) ISO-8601 dates: YYYY-MM-DD, YYYYMMDD, YYYY, YYYY-MM
-# But, relax the separator, allowing, hyphen, dot, or forward-slash
-# Will not match less common:
-# YYYY-Www, YYYYWww, YYYY-Www-D, YYYYWwwD, YYYYDDD,  YYYY-DDD
-ISO_DATE = re.compile(r'\b(?P<year>\d{4})[\.\-\/]?(?=\d{2})(?P<month>\d{2})?[\.\-\/]?(?=\d{2})(?P<day>\d{2})?\b')
-
 extract_dob = _make_extract_info_func(start=_dob)
 
 # ---------------------------------------------------------------------

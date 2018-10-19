@@ -79,29 +79,6 @@ cases = {
             ]
         ),
 
-    # TODO
-    # 'LOOSE_GLOBAL_PHONENUM': dict(
-    #     valid=[
-    #         '610-249-3976',
-    #         '1-213-555-0123',
-    #         '234-911-5678',
-    #         '675-0100',
-    #         '+1 484 799 4985',
-    #         '1 484 799 4985',
-    #         '1 8005551234',
-    #         '4847985154',
-    #         '415 555-2671',
-    #         '+1 415.555.2671',
-    #         '+ 1 4155552671',
-    #         '020 7183 8750',
-    #         '+44 20 7183 8750'
-    #         ],
-    #     invalid=[
-    #         '159-2653',
-    #         '1 159 2653',
-    #         ]
-    #     ),
-
     'STRICT_URL': dict(
         valid=[
             'https://www.google.com',
@@ -310,24 +287,6 @@ def test_regex_search_positive_constant(regex: re.Pattern, string: str):
 def test_regex_search_negative_constant(regex: re.Pattern, string: str):
     assert isinstance(regex, re.Pattern)
     assert not bool(regex.search(string))
-
-
-# @pytest.mark.parametrize(
-#     'regex,string',
-#     [(getattr(re101, k)(), i) for k, v in class_cases.items() for i in v['valid']]
-# )
-# def test_regex_search_positive_constant(regex: re.Pattern, string: str):
-#     assert isinstance(regex, re.Pattern)
-#     assert bool(regex.search(string))
-
-
-# @pytest.mark.parametrize(
-#     'regex,string',
-#     [(getattr(re101, k)(), i) for k, v in class_cases.items() for i in v['invalid']]
-# )
-# def test_regex_search_negative_constant(regex: re.Pattern, string: str):
-#     assert isinstance(regex, re.Pattern)
-#     assert not bool(regex.search(string))
 
 
 def test_deprecated_regex():
