@@ -1,7 +1,12 @@
+Version 0.3.4 (2018-10-19)
+-------------------------------------
+- Added LOOSE_URL_DOMAIN
+
+
 Version 0.3.3 (2018-10-19)
 -------------------------------------
-- Removed NON_US_PHONENUM and added E164_PHONENUM.  The latter is more limited
-  in scope.
+- Removed NON_US_PHONENUM and added E164_PHONENUM.  The latter is
+  more limited in scope.
 
 
 Version 0.3.0 (2018-10-18)

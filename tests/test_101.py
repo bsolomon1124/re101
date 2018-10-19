@@ -104,6 +104,17 @@ cases = {
             ]
         ),
 
+    'LOOSE_URL_DOMAIN': dict(
+        valid=[
+            'group.me',
+            'bit.ly/',
+            'https://www.google.com'
+            ],
+        invalid=[
+
+            ]
+        ),
+
     'USERNAME': dict(
         valid=[
             'username is abcdef',
