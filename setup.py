@@ -1,10 +1,10 @@
-from codecs import open as op
+import codecs
 import os
 from setuptools import setup, find_packages
 
 
 here = os.path.abspath(os.path.dirname(__file__))
-with op(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
+with codecs.open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 
@@ -12,7 +12,7 @@ setup(
     name='re101',
     description='A back-pocket regex cookbook',
     long_description=long_description,
-    version='0.2.0',
+    version='0.3.0',
     author='Brad Solomon',
     author_email='brad.solomon.1124@gmail.com',
     url='https://github.com/bsolomon1124/re101',
@@ -20,12 +20,20 @@ setup(
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: Unix',
+        'Operating System :: POSIX',
+        'Operating System :: Microsoft :: Windows',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Intended Audience :: Developers',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python',
-        'Topic :: Text Processing :: Linguistic'
+        'Topic :: Text Processing :: Linguistic',
+        'Programming Language :: Python :: Implementation :: CPython',
         ],
     keywords=[
         'regex',

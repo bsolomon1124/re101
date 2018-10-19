@@ -8,17 +8,17 @@ This package pertains specifically to regular expressions embedded inside Python
 
 ## Introduction
 
-All importable objects are compiled regular expressions.  For instance, `nanp_phonenum` matches sequences following the North American Number Plan (NANP) format.  In plain English, this is what would qualify as a "North American telephone number":
+All importable objects are compiled regular expressions.  For instance, `US_PHONENUM` matches sequences following the North American Number Plan (NANP) format.  In plain English, this is what would qualify as a "North American telephone number":
 
 ```python
->>> from re101 import nanp_phonenum
+>>> from re101 import US_PHONENUM
 >>> text = """
 ... Ross McFluff: +1 (834) 345.1254 155 Elm Street
 ... Ronald Heathmore: 892-345-3428 436 Finley Avenue
 ... Frank Burger: 541-7625 662 South Dogwood Way
 ... Heather Albrecht: 5483264584 919 Park Place"""
 
->>> nanp_phonenum.findall(text)
+>>> US_PHONENUM.findall(text)
 ['+1 (834) 345.1254', '892-345-3428', '541-7625', '5483264584']
 ```
 
@@ -32,6 +32,15 @@ Currently, the package supports regexes related to:
 - URLs
 - integers, decimals, numbers
 - geographic information
+- personally identifiable information
+
+## Naming Conventions
+
+Objects exported by the package may be in either `UPPERCASE`, `CamelCase`, or `lower_case`:
+
+- `UPPERCASE`: These are compiled regular expressions, of type `re.Pattern`, which is the result of `re.compile()`.
+- `CamelCase`: These are classes whose `__new__()` method returns a compiled regular expression, but takes a few additional parameters that add optionality to the compiled result.  For instance, the `Number` class lets you allow or disallow leading zeros and commas.
+- `lower_case`: These are traditional functions built around the package's regex constants.  They do not share any consistency in their call syntax or result type.
 
 ## Disclaimer
 
@@ -52,3 +61,11 @@ Citations are included for "unique" regexes that are copied from a singular sour
 - 5. Kuchling, A.M.  "Regular Expression HOWTO."  https://docs.python.org/3/howto/regex.html
 - 6. Python.org documentation: `ipaddress` module.  Copyright 2007 Google Inc.  Licensed to PSF under a Contributor Agreement.  https://docs.python.org/3/library/ipaddress.html
 - 7. nerdsrescueme/regex.txt.  https://gist.github.com/nerdsrescueme/1237767
+
+## To-Do List
+
+These patterns are not currently implemented:
+
+- IPv6 address (RFC 4291)
+- Dates and times (both ISO-8601 and more informal, such as those that can be parsed by Python's `dateutil`)
+- Money/currency (including both the leading or trailing sign, numbers, and punctuation)

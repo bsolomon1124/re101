@@ -35,6 +35,7 @@ __license__ = 'MIT'
 
 import functools
 import re
+from typing import Optional
 import warnings
 
 # ---------------------------------------------------------------------
@@ -99,11 +100,13 @@ LOOSE_GLOBAL_PHONENUM = re.compile(_global_phonenum)
 # *IP addresses*
 
 # Unlike Python's ipaddress module, we are only concerned with
-#     string representations of IP addresses, not their integer or
-#     bytes representations.
-#     Definitions: https://docs.python.org/3/library/ipaddress.html
+# string representations of IP addresses, not their integer or
+# bytes representations.
+#
+# Definitions: https://docs.python.org/3/library/ipaddress.html
 
-# Valid IPv4 address:  (Source: [6])
+# Valid IPv4 address:  Source: [6]
+#
 # A string in decimal-dot notation, consisting of four decimal integers
 # in the inclusive range 0–255, separated by dots (e.g. 192.168.0.1).
 # Each integer represents an octet (byte) in the address. Leading zeroes
@@ -111,19 +114,8 @@ LOOSE_GLOBAL_PHONENUM = re.compile(_global_phonenum)
 # between the decimal and octal interpretations of such strings).
 IPV4 = re.compile(r'\b(([0]{1,2}[0-7]|[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0]{1,2}[0-7]|[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\b')
 
-# Valid IPv6 address:  (Source: [6])
-# A string consisting of eight groups of four hexadecimal digits,
-# each group representing 16 bits. The groups are separated by colons.
-# This describes an exploded (longhand) notation. The string can also be
-# compressed (shorthand notation) by various means. See RFC 4291 for details.
-# For example, "0000:0000:0000:0000:0000:0abc:0007:0def" can be compressed
-# to "::abc:7:def".
-# See also: https://tools.ietf.org/html/rfc4291.html
-
-# TODO - ipv6
-
 # ---------------------------------------------------------------------
-# (Valid) URL
+# *URLs*
 
 # Valid Uniform Resource Locator (URL) as prescribed by RFC 1738
 # http://www.ietf.org/rfc/rfc1738.txt
@@ -141,8 +133,6 @@ MONEYSIGN = (u'\u0024\u00A2\u00A3\u00A4\u00A5\u058F\u060B\u09F2\u09F3'
              u'\u20AE\u20AF\u20B0\u20B1\u20B2\u20B3\u20B4\u20B5\u20B6\u20B7'
              u'\u20B8\u20B9\u20BA\u20BB\u20BC\u20BD\u20BE\u20BF\uA838\uFDFC'
              u'\uFE69\uFF04\uFFE0\uFFE1\uFFE5\uFFE6')
-
-# TODO: currency; deal with front/back-end symbol
 
 # For the lexical structure for a "number," we steal from the Postgres
 # docs, with a few additions:
@@ -267,7 +257,7 @@ US_ZIPCODE = re.compile(r'\b[0-9]{5}(?:-[0-9]{4})?\b(?!-)')
 US_STATE = re.compile(r'\b(A[KLRZ]|C[AOT]|D[CE]|FL|GA|HI|I[ADLN]|K[SY]|LA|M[ADEINOST]|N[CDEHJMVY]|O[HKR]|PA|RI|S[CD]|T[NX]|UT|V[AT]|W[AIVY])\b')
 
 # ---------------------------------------------------------------------
-# PII
+# *PII*
 # Please use these tools for benevolent purposes.
 
 _pw = r'p(?:ass)?w(?:ord)?'
@@ -283,19 +273,19 @@ PASSWORD = make_userinfo_re(start=_pw)
 USERNAME = make_userinfo_re(start=_un)
 
 
-def _extract(s: str, name: str, *, r: re.Pattern = None) -> list:
+def _extract(s: str, *, r: re.Pattern = None) -> list:
     if not r:
         raise ValueError('`r` must not be null')
     return r.findall(s)
 
 
-def _make_extract_info_func(start: str, name: str, flags=re.I):
+def _make_extract_info_func(start: str, flags=re.I):
     r = make_userinfo_re(start=start, flags=flags)
     return functools.partial(_extract, r=r)
 
 
-extract_pw = _make_extract_info_func(start=_pw, name='password')
-extract_un = _make_extract_info_func(start=_un, name='username')
+extract_pw = _make_extract_info_func(start=_pw)
+extract_un = _make_extract_info_func(start=_un)
 
 # Social security numbers: AAA-GG-SSSS
 # https://www.ssa.gov/history/ssn/geocard.html
@@ -315,6 +305,101 @@ _cards = dict(
 # Visa, Mastercard, Amex, Discover
 STRICT_CREDIT_CARD = re.compile(r'|'.join(_cards.values()))
 LOOSE_CREDIT_CARD = re.compile(r'[0-9-]{13,20}')
+
+US_PASSPORT = re.compile(r'\b[C\d]\d{5,8}\b', re.I)
+
+# Forked directly from:
+# https://github.com/adambullmer/USDLRegex/blob/master/regex.json
+# https://ntsi.com/drivers-license-format/
+_license_by_state = {
+    'AK': re.compile(r'\b[0-9]{1,7}\b', re.I),
+    'AL': re.compile(r'\b[0-9]{1,7}\b', re.I),
+    'AR': re.compile(r'\b[0-9]{4,9}\b', re.I),
+    'AZ': re.compile(r'(?:\b[A-Z]{1}[0-9]{1,8}\b)|(?:\b[A-Z]{2}[0-9]{2,5}\b)|(?:\b[0-9]{9}\b)', re.I),
+    'CA': re.compile(r'\b[A-Z]{1}[0-9]{7}\b', re.I),
+    'CO': re.compile(r'(?:\b[0-9]{9}\b)|(?:\b[A-Z]{1}[0-9]{3,6}\b)|(?:\b[A-Z]{2}[0-9]{2,5}\b)', re.I),
+    'CT': re.compile(r'\b[0-9]{9}\b', re.I),
+    'DC': re.compile(r'(?:\b[0-9]{7}\b)|(?:\b[0-9]{9}\b)', re.I),
+    'DE': re.compile(r'\b[0-9]{1,7}\b', re.I),
+    'FL': re.compile(r'\b[A-Z]{1}[0-9]{12}\b', re.I),
+    'GA': re.compile(r'\b[0-9]{7,9}\b', re.I),
+    'GU': re.compile(r'\b[A-Z]{1}[0-9]{14}\b', re.I),
+    'HI': re.compile(r'(?:\b[A-Z]{1}[0-9]{8}\b)|(?:\b[0-9]{9}\b)', re.I),
+    'IA': re.compile(r'\b([0-9]{9}|(?:[0-9]{3}[A-Z]{2}[0-9]{4}))\b', re.I),
+    'ID': re.compile(r'(?:\b[A-Z]{2}[0-9]{6}[A-Z]{1}\b)|(?:\b[0-9]{9}\b)', re.I),
+    'IL': re.compile(r'\b[A-Z]{1}[0-9]{11,12}\b', re.I),
+    'IN': re.compile(r'(?:\b[A-Z]{1}[0-9]{9}\b)|(?:\b[0-9]{9,10}\b)', re.I),
+    'KS': re.compile(r'(?:\b([A-Z]{1}[0-9]{1}){2}[A-Z]{1}\b)|(?:\b[A-Z]{1}[0-9]{8}\b)|(?:\b[0-9]{9}\b)', re.I),
+    'KY': re.compile(r'(?:\b[A_Z]{1}[0-9]{8,9}\b)|(?:\b[0-9]{9}\b)', re.I),
+    'LA': re.compile(r'\b[0-9]{1,9}\b', re.I),
+    'MA': re.compile(r'(?:\b[A-Z]{1}[0-9]{8}\b)|(?:\b[0-9]{9}\b)', re.I),
+    'MD': re.compile(r'\b[A-Z]{1}[0-9]{12}\b', re.I),
+    'ME': re.compile(r'(?:\b[0-9]{7,8}\b)|(?:\b[0-9]{7}[A-Z]{1}\b)', re.I),
+    'MI': re.compile(r'(?:\b[A-Z]{1}[0-9]{10}\b)|(?:\b[A-Z]{1}[0-9]{12}\b)', re.I),
+    'MN': re.compile(r'\b[A-Z]{1}[0-9]{12}\b', re.I),
+    'MO': re.compile(r'(?:\b[A-Z]{1}[0-9]{5,9}\b)|(?:\b[A-Z]{1}[0-9]{6}[R]{1}\b)|(?:\b[0-9]{8}[A-Z]{2}\b)|(?:\b[0-9]{9}[A-Z]{1}\b)|(\b[0-9]{9}\b)', re.I),
+    'MS': re.compile(r'\b[0-9]{9}\b', re.I),
+    'MT': re.compile(r'(?:\b[A-Z]{1}[0-9]{8}\b)|(?:\b[0-9]{13}\b)|(?:\b[0-9]{9}\b)|(?:\b[0-9]{14}\b)', re.I),
+    'NC': re.compile(r'\b[0-9]{1,12}\b', re.I),
+    'ND': re.compile(r'(?:\b[A-Z]{3}[0-9]{6}\b)|(?:\b[0-9]{9}\b)', re.I),
+    'NE': re.compile(r'\b[0-9]{1,7}\b', re.I),
+    'NH': re.compile(r'\b[0-9]{2}[A-Z]{3}[0-9]{5}\b', re.I),
+    'NJ': re.compile(r'\b[A-Z]{1}[0-9]{14}\b', re.I),
+    'NM': re.compile(r'\b[0-9]{8,9}\b', re.I),
+    'NV': re.compile(r'(?:\b[0-9]{9,10}\b)|(?:\b[0-9]{12}\b)|(?:\b[X]{1}[0-9]{8}\b)', re.I),
+    'NY': re.compile(r'(?:\b[A-Z]{1}[0-9]{7}\b)|(?:\b[A-Z]{1}[0-9]{18}\b)|(?:\b[0-9]{8}\b)|(?:\b[0-9]{9}\b)|(?:\b[0-9]{16}\b)|(?:\b[A-Z]{8}\b)', re.I),
+    'OH': re.compile(r'(?:\b[A-Z]{1}[0-9]{4,8}\b)|(?:\b[A-Z]{2}[0-9]{3,7}\b)|(?:\b[0-9]{8}\b)', re.I),
+    'OK': re.compile(r'(?:\b[A-Z]{1}[0-9]{9}\b)|(?:\b[0-9]{9}\b)', re.I),
+    'OR': re.compile(r'\b[0-9]{1,9}\b', re.I),
+    'PA': re.compile(r'\b[0-9]{8}\b', re.I),
+    'PR': re.compile(r'(?:\b[0-9]{9}\b)|(?:\b[0-9]{5,7}\b)', re.I),
+    'RI': re.compile(r'\b(?:[0-9]{7}\b)|(?:\b[A-Z]{1}[0-9]{6}\b)', re.I),
+    'SC': re.compile(r'\b[0-9]{5,11}\b', re.I),
+    'SD': re.compile(r'(?:\b[0-9]{6,10}\b)|(?:\b[0-9]{12}\b)', re.I),
+    'TN': re.compile(r'\b[0-9]{7,9}\b', re.I),
+    'TX': re.compile(r'\b[0-9]{7,8}\b', re.I),
+    'UT': re.compile(r'\b[0-9]{4,10}\b', re.I),
+    'VA': re.compile(r'(?:\b[A-Z]{1}[0-9]{8,11}\b)|(?:\b[0-9]{9}\b)', re.I),
+    'VT': re.compile(r'(?:\b[0-9]{8}\b)|(?:\b[0-9]{7}[A]\b)', re.I),
+    'WA': re.compile(r'\b(?=.{12}\b)[A-Z]{1,7}[A-Z0-9\\*]{4,11}\b', re.I),
+    'WI': re.compile(r'\b[A-Z]{1}[0-9]{13}\b', re.I),
+    'WV': re.compile(r'(?:\b[0-9]{7}\b)|(?:\b[A-Z]{1,2}[0-9]{5,6}\b)', re.I),
+    'WY': re.compile(r'\b[0-9]{9,10}\b', re.I)
+}
+
+
+def extract_us_drivers_license(
+    s: str,
+    state: Optional[str] = None
+) -> tuple:
+    if state:
+        return _license_by_state[state.upper()].findall(s)
+    else:
+        res = set()
+        add = res.add
+        for state, regex in _license_by_state.items():
+            matches = regex.findall(s)
+            if matches:
+                for i in matches:
+                    add(i)
+        return re
+
+
+# ---------------------------------------------------------------------
+# *Dates & times*
+
+_dob = r'd(?:ate )?o(?:f )?b(?:irth)??'
+DOB = make_userinfo_re(start=_dob)
+
+# (Some) ISO-8601 dates: YYYY-MM-DD, YYYYMMDD, YYYY, YYYY-MM
+# But, relax the separator, allowing, hyphen, dot, or forward-slash
+# Will not match less common:
+# YYYY-Www, YYYYWww, YYYY-Www-D, YYYYWwwD, YYYYDDD,  YYYY-DDD
+ISO_DATE = re.compile(r'\b(?P<year>\d{4})[\.\-\/]?(?=\d{2})(?P<month>\d{2})?[\.\-\/]?(?=\d{2})(?P<day>\d{2})?\b')
+
+extract_dob = _make_extract_info_func(start=_dob)
+
+# ---------------------------------------------------------------------
 
 
 class _DeprecatedRegex(object):
@@ -357,6 +442,8 @@ __all__ = (
     'Decimal',
     'extract_pw',
     'extract_un',
+    'extract_dob',
+    'extract_us_drivers_license'
 )
 # Bring uppercase constants into the namespace.
 _locals = locals()

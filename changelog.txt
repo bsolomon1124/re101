@@ -1,8 +1,50 @@
-Version 0.1.1
-------------------
+Version 0.3.0 (2018-10-18)
+-------------------------------------
+- Introduced convention of UPPERCASE for re.Pattern constants
+    - email -> EMAIL
+    - mult_whitespace -> MULT_WHITESPACE
+    - mult_spaces -> MULT_SPACES
+    - word -> WORD
+    - adverb -> ADVERB
+    - moneysign -> MONEYSIGN
+    - ipv4 -> IPV4
+- Renamed some top-level constants with `US_` prefix to indicate
+  that they are U.S.-centric:
+    - zipcode -> US_ZIPCODE
+    - state   -> US_STATE
+    - nanp_phonenum -> US_PHONENUM
+- All of the above "renames" will still be importable and functional,
+  but calling __getattr__ will issue a warning about the name change.
+- New constants:
+    - PASSWORD
+    - USERNAME
+    - STRICT_SSN
+    - LOOSE_SSN
+    - STRICT_URL (replaces url)
+    - LOOSE_URL
+    - NON_US_PHONENUM
+    - CREDIT_CARD
+    - DOB
+    - US_PASSPORT
+- New functions:
+    - extract_pw
+    - extract_un
+    - extract_dob
+    - extract_us_drivers_license (provisional implementation)
+- Overhauled `test_101.py` to use `pytest.mark.parametrize`
+
+
+Version 0.2.0 (2017-05-07)
+-------------------------------------
+- Moved the module's contents to from `re101/re101.py` to `re101/__init__.py`
+- Added Number, Decimal, Integer classes
+
+
+Version 0.1.1 (2018-02-19)
+-------------------------------------
 - Updated README
 
-Version 0.1.0
-------------------
-- Initial commit/PyPI upload
 
+Version 0.1.0 (2018-02-13)
+-------------------------------------
+- Initial commit/PyPI upload
