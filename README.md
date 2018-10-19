@@ -54,13 +54,13 @@ Please assume these expressions are "US-centric" unless noted otherwise.  For in
 
 Citations are included for "unique" regexes that are copied from a singular source.  More "generic" regexes that can be found in similar form from multiple public sources may not be cited here.
 
-- 1. Goyvaerts, Jan & Steven Levithan.  Regular Expressions Cookbook, 2nd ed.  Sebastopol: O'Reilly, 2012.
-- 2. Friedl, Jeffrey.  Mastering Regular Expressions, 3rd ed.  Sebastopol: O'Reilly, 2009.
-- 3. Goyvaerts, Jan.  Regular Expressions: The Complete Tutorial.  https://www.regular-expressions.info/.
-- 4. Python.org documentation: `re` module.  https://docs.python.org/3/library/re.html
-- 5. Kuchling, A.M.  "Regular Expression HOWTO."  https://docs.python.org/3/howto/regex.html
-- 6. Python.org documentation: `ipaddress` module.  Copyright 2007 Google Inc.  Licensed to PSF under a Contributor Agreement.  https://docs.python.org/3/library/ipaddress.html
-- 7. nerdsrescueme/regex.txt.  https://gist.github.com/nerdsrescueme/1237767
+1. Goyvaerts, Jan & Steven Levithan.  Regular Expressions Cookbook, 2nd ed.  Sebastopol: O'Reilly, 2012.
+2. Friedl, Jeffrey.  Mastering Regular Expressions, 3rd ed.  Sebastopol: O'Reilly, 2009.
+3. Goyvaerts, Jan.  Regular Expressions: The Complete Tutorial.  https://www.regular-expressions.info/.
+4. Python.org documentation: `re` module.  https://docs.python.org/3/library/re.html
+5. Kuchling, A.M.  "Regular Expression HOWTO."  https://docs.python.org/3/howto/regex.html
+6. Python.org documentation: `ipaddress` module.  Copyright 2007 Google Inc.  Licensed to PSF under a Contributor Agreement.  https://docs.python.org/3/library/ipaddress.html
+7. nerdsrescueme/regex.txt.  https://gist.github.com/nerdsrescueme/1237767
 
 ## To-Do List
 
