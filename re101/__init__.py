@@ -4,7 +4,7 @@ Objects exported by the package may be in either `UPPERCASE`,
 `CamelCase`, or `lower_case`:
 
 - `UPPERCASE`: These are compiled regular expressions, of type
-  `re.Pattern`, which is the result of `re.compile()`.
+  `Pattern`, which is the result of `re.compile()`.
 
 - `CamelCase`: These are classes whose `__new__()` method returns
   a compiled regular expression, but takes a few additional parameters
@@ -44,7 +44,7 @@ __license__ = 'MIT'
 
 import functools
 import re
-from typing import Optional
+from typing import Optional, re as Pattern  # < Python 3.6 support
 import warnings
 
 # ---------------------------------------------------------------------
@@ -75,11 +75,11 @@ WORD = re.compile(r'\b\w+\b')
 ADVERB = re.compile(r'\w+ly')
 
 
-def not_followed_by(word: str) -> re.Pattern:
+def not_followed_by(word: str) -> Pattern:
     return re.compile(r'\b\w+\b(?!\W+{word}\b)'.format(word=word))
 
 
-def followed_by(word: str) -> re.Pattern:
+def followed_by(word: str) -> Pattern:
     return re.compile(r'\b\w+\b(?=\W+{word}\b)'.format(word=word))
 
 
@@ -275,7 +275,7 @@ class Number(object):
 
     Returns
     -------
-    re.Pattern, the object produced by `re.compile()`
+    Pattern, the object produced by `re.compile()`
     """
 
     def __new__(
@@ -283,7 +283,7 @@ class Number(object):
         allow_leading_zeros: bool = True,
         allow_commas: bool = True,
         flags=0
-    ) -> re.Pattern:
+    ) -> Pattern:
         key = allow_leading_zeros, allow_commas
         pattern = '|'.join(_number_combinations[key])
         return re.compile(pattern, flags=flags)
@@ -295,7 +295,7 @@ class Integer(object):
         allow_leading_zeros: bool = True,
         allow_commas: bool = True,
         flags=0
-    ) -> re.Pattern:
+    ) -> Pattern:
         key = allow_leading_zeros, allow_commas
         # The only difference here is we use 0th element only.
         pattern = _number_combinations[key][0]
@@ -308,7 +308,7 @@ class Decimal(object):
         allow_leading_zeros: bool = True,
         allow_commas: bool = True,
         flags=0
-    ) -> re.Pattern:
+    ) -> Pattern:
         key = allow_leading_zeros, allow_commas
         # 0th element is for Integer; other are for Decimal.
         pattern = '|'.join(_number_combinations[key][1:])
@@ -374,7 +374,7 @@ _pw = r'(?:p(?:ass)?w(?:ord)?|pword|passphrase|secret key|pass(?:wd)?)'
 _un = r'(?:user(?:name)?|uname)'
 
 
-def make_userinfo_re(start: str, flags=re.I) -> re.Pattern:
+def make_userinfo_re(start: str, flags=re.I) -> Pattern:
     return re.compile(start + r'(?:\s*[:=]\s*|\s+is\s+)(?P<token>\S+)',
                       flags=flags)
 
@@ -383,7 +383,7 @@ PASSWORD = make_userinfo_re(start=_pw)
 USERNAME = make_userinfo_re(start=_un)
 
 
-def _extract(s: str, *, r: re.Pattern = None) -> list:
+def _extract(s: str, *, r: Pattern = None) -> list:
     if not r:
         raise ValueError('`r` must not be null')
     return r.findall(s)
@@ -507,7 +507,7 @@ extract_dob = _make_extract_info_func(start=_dob)
 
 class _DeprecatedRegex(object):
     """Warn about deprecated expressions, but keep their functionality."""
-    def __init__(self, regex: re.Pattern, old: str, new=str.upper):
+    def __init__(self, regex: Pattern, old: str, new=str.upper):
         if callable(new):
             new = new(old)
         self.msg = f'\nThe `{old}` constant has been renamed `{new}` and is deprecated.  Use:\n\n\t>>> from re101 import {new}\n'
@@ -516,7 +516,7 @@ class _DeprecatedRegex(object):
         self.new = new
 
     def __getattr__(self, name):
-        """Call __getattr__ for the newly-named re.Pattern."""
+        """Call __getattr__ for the newly-named Pattern."""
         if 'name' in {'old' 'new', 'regex', 'msg'}:
             return getattr(self, name)
         warnings.warn(self.msg, FutureWarning, stacklevel=2)
@@ -535,7 +535,7 @@ zipcode = _DeprecatedRegex(regex=US_ZIPCODE, old='zipcode', new='US_ZIPCODE')
 state = _DeprecatedRegex(regex=US_STATE, old='state', new='US_STATE')
 nanp_phonenum = _DeprecatedRegex(regex=US_PHONENUM, old='state', new='US_PHONENUM')
 
-# Functions, classes that make re.Patterns with __new__(), and constants
+# Functions, classes that make Patterns with __new__(), and constants
 # ---------------------------------------------------------------------
 __all__ = (
     'not_followed_by',
