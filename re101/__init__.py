@@ -369,8 +369,8 @@ US_ADDRESS = re.compile(_addrname + _roads + _cardinal)
 # *PII*
 # Please use these tools for benevolent purposes.
 
-_pw = r'p(?:ass)?w(?:ord)?'
-_un = r'user(?:name)?'
+_pw = r'(?:p(?:ass)?w(?:ord)?|pword|passphrase|secret key|pass(?:wd)?)'
+_un = r'(?:user(?:name)?|uname)'
 
 
 def make_userinfo_re(start: str, flags=re.I) -> re.Pattern:
