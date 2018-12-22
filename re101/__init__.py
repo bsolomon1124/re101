@@ -324,6 +324,47 @@ US_ZIPCODE = re.compile(r'\b[0-9]{5}(?:-[0-9]{4})?\b(?!-)')
 # Source: [7]
 US_STATE = re.compile(r'\b(A[KLRZ]|C[AOT]|D[CE]|FL|GA|HI|I[ADLN]|K[SY]|LA|M[ADEINOST]|N[CDEHJMVY]|O[HKR]|PA|RI|S[CD]|T[NX]|UT|V[AT]|W[AIVY])\b')
 
+# U.S. address - street name portion.
+# This will not include city/state/ZIP
+_roads = r'(?:' + '|'.join((
+    r'Ave\.?',
+    r'Avenue',
+    r'Blvd\.?',
+    r'Boulevard',
+    r'Circle',
+    r'Cr\.?',
+    r'Court',
+    r'Crossing',
+    r'Dr\.?',
+    r'Drive',
+    r'Expressway',
+    r'Freeway',
+    r'Lane',
+    r'Ln\.?',
+    r'Parkway',
+    r'Pkwy\.?',
+    r'Place',
+    r'Pl\.?',
+    r'Rd\.?',
+    r'Road',
+    r'St\.?',
+    r'Street',
+    r'Terrace',
+    r'Turnkpike',
+    r'Way'
+)) + r')'
+
+_cardinal = r'(?: (?:N|S|E|W|NW|SW|NE|SE|East|West|North(?:west|east)?|South(?:west|east)?)\b)?'
+
+# Parts of the actual address, in 99% of cases, will be either:
+# - digits (223 Park Lane)
+# - capitalized alphachars (223 Park Lane)
+# - led by digits (503 47th St)
+# There is not other reliable way to constrain the match, so we disallow
+# words starting with lowercase.
+_addrname = r'(?:(?:\d|[A-Z])\S* )+'
+US_ADDRESS = re.compile(_addrname + _roads + _cardinal)
+
 # ---------------------------------------------------------------------
 # *PII*
 # Please use these tools for benevolent purposes.
