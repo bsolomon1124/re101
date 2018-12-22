@@ -8,7 +8,7 @@ import re101
 # Each key is a variable defined in re101.py.  Each key is a dictionary
 # consisting of both valid and invalid cases for testing.
 
-cases = {
+SEARCH_CASES = {
 
     'EMAIL': dict(
         valid=[
@@ -32,9 +32,8 @@ cases = {
             'A@b@c@example.com',
             'asterisk_domain@foo.*',
             'just"not"right@example.com',
-            r'this is"not\allowed@example.com',
+            'not allowed @example.com',
             r'a"b(c)d,e:f;gi[j\k]l@example.com',
-            r'this\ still"not\allowed@example.com'
             ]
         ),
 
@@ -286,7 +285,7 @@ class_cases = {
 
 @pytest.mark.parametrize(
     'regex,string',
-    [(getattr(re101, k), i) for k, v in cases.items() for i in v['valid']]
+    [(getattr(re101, k), i) for k, v in SEARCH_CASES.items() for i in v['valid']]
 )
 def test_regex_search_positive_constant(regex: Pattern, string: str):
     assert isinstance(regex, Pattern)
@@ -295,11 +294,38 @@ def test_regex_search_positive_constant(regex: Pattern, string: str):
 
 @pytest.mark.parametrize(
     'regex,string',
-    [(getattr(re101, k), i) for k, v in cases.items() for i in v['invalid']]
+    [(getattr(re101, k), i) for k, v in SEARCH_CASES.items() for i in v['invalid']]
 )
 def test_regex_search_negative_constant(regex: Pattern, string: str):
     assert isinstance(regex, Pattern)
     assert not bool(regex.search(string))
+
+
+MATCH_CASES = {
+    'EMAIL': dict(
+        invalid=[
+            'hfij#kjdfvkl',
+            'Abc.example.com',
+            'this is not true',
+            '@foo.com',
+            'A@b@c@example.com',
+            'asterisk_domain@foo.*',
+            'just"not"right@example.com',
+            'not allowed @example.com',
+            r'stil not allowed@example.com',
+            r'a"b(c)d,e:f;gi[j\k]l@example.com',
+            ]
+        )
+}
+
+
+@pytest.mark.parametrize(
+    'regex,string',
+    [(getattr(re101, k), i) for k, v in MATCH_CASES.items() for i in v['invalid']]
+)
+def test_regex_search_negative_constant(regex: Pattern, string: str):
+    assert isinstance(regex, Pattern)
+    assert not bool(regex.match(string))
 
 
 def test_deprecated_regex():
