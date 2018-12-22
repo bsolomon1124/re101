@@ -95,7 +95,7 @@ US_PHONENUM = re.compile(r'(?<!-)(?:\b|\+|)(?:1(?: |-|\.|\()?)?(?:\(?[2-9]\d{2}(
 
 # E.164 ITU phone number format
 # https://www.itu.int/rec/dologin_pub.asp?lang=e&id=T-REC-E.164-201011-I!!PDF-E&type=items
-E164_PHONENUM= re.compile(r'\+?[1-9]\d{1,14}\b')
+E164_PHONENUM = re.compile(r'\+?[1-9]\d{1,14}\b')
 # ---------------------------------------------------------------------
 
 # ---------------------------------------------------------------------
@@ -142,7 +142,7 @@ LOOSE_URL = re.compile(r'\b(?:(?:https?|ftp|file)://|(?:www|ftp)\.)[-A-Z0-9+&@#/
 # IANA root-zone database country-code domains
 # https://www.iana.org/domains/root/db
 _domains = (
-   '.ac', '.ad', '.ae', '.af', '.ag', '.ai', '.al', '.am', '.an',
+    '.ac', '.ad', '.ae', '.af', '.ag', '.ai', '.al', '.am', '.an',
     '.ao', '.aq', '.ar', '.as', '.at', '.au', '.aw', '.ax', '.az',
     '.ba', '.bb', '.bd', '.be', '.bf', '.bg', '.bh', '.bi', '.bj',
     '.bl', '.bm', '.bn', '.bo', '.bq', '.br', '.bs', '.bt', '.bv',
@@ -188,8 +188,9 @@ _domains = (
 
 # Hinge on the presence of a domain, and be liberal about
 # what comes before it.
-LOOSE_URL_DOMAIN = re.compile(r'\b\S+' + f'(?:{"|".join(_domains)})'
-                              + r'\S*\b')
+LOOSE_URL_DOMAIN = re.compile(
+    r'\b\S+' + f'(?:{"|".join(_domains)})' + r'\S*\b')
+
 # ---------------------------------------------------------------------
 # *Numbers and currency*
 
