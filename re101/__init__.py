@@ -190,7 +190,7 @@ _domains = (
 # Hinge on the presence of a domain, and be liberal about
 # what comes before it.
 LOOSE_URL_DOMAIN = re.compile(
-    r'\b\S+' + f'(?:{"|".join(_domains)})' + r'\S*\b')
+    r'\b\S+' + '(?:{})'.format("|".join(_domains)) + r'\S*\b')
 
 # ---------------------------------------------------------------------
 # *Numbers and currency*
@@ -511,7 +511,7 @@ class _DeprecatedRegex(object):
     def __init__(self, regex: Pattern, old: str, new=str.upper):
         if callable(new):
             new = new(old)
-        self.msg = f'\nThe `{old}` constant has been renamed `{new}` and is deprecated.  Use:\n\n\t>>> from re101 import {new}\n'
+        self.msg = '\nThe `{old}` constant has been renamed `{new}` and is deprecated.  Use:\n\n\t>>> from re101 import {new}\n'.format(old=old, new=new)
         self.regex = regex
         self.old = old
         self.new = new

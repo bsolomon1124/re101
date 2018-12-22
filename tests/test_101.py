@@ -1,4 +1,5 @@
 import re
+from typing.re import Pattern
 
 import pytest
 
@@ -287,8 +288,8 @@ class_cases = {
     'regex,string',
     [(getattr(re101, k), i) for k, v in cases.items() for i in v['valid']]
 )
-def test_regex_search_positive_constant(regex: re.Pattern, string: str):
-    assert isinstance(regex, re.Pattern)
+def test_regex_search_positive_constant(regex: Pattern, string: str):
+    assert isinstance(regex, Pattern)
     assert bool(regex.search(string))
 
 
@@ -296,8 +297,8 @@ def test_regex_search_positive_constant(regex: re.Pattern, string: str):
     'regex,string',
     [(getattr(re101, k), i) for k, v in cases.items() for i in v['invalid']]
 )
-def test_regex_search_negative_constant(regex: re.Pattern, string: str):
-    assert isinstance(regex, re.Pattern)
+def test_regex_search_negative_constant(regex: Pattern, string: str):
+    assert isinstance(regex, Pattern)
     assert not bool(regex.search(string))
 
 
