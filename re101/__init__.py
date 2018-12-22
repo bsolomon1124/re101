@@ -44,7 +44,8 @@ __license__ = 'MIT'
 
 import functools
 import re
-from typing import Optional, re as Pattern  # < Python 3.6 support
+from typing import Optional
+from typing.re import Pattern  # < Python 3.6 support
 import warnings
 
 # ---------------------------------------------------------------------
