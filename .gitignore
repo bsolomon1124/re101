@@ -105,3 +105,10 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# ruff / ty
+.ruff_cache/
+.ty_cache/
+
+# uv
+# (keep uv.lock in VCS for apps; for libraries it's optional — tracked here)

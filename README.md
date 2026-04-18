@@ -1,8 +1,34 @@
 # re101
 
+[![PyPI version](https://img.shields.io/pypi/v/re101.svg)](https://pypi.org/project/re101/)
+[![License](https://img.shields.io/pypi/l/re101.svg)](https://github.com/bsolomon1124/re101/blob/master/LICENSE)
+[![Python versions](https://img.shields.io/pypi/pyversions/re101.svg)](https://pypi.org/project/re101/)
+
 A compendium of commonly-used regular expressions.
 
 This package pertains specifically to regular expressions embedded inside Python and compiled with Python's [`re`](https://docs.python.org/3/library/re.html) module.
+
+Tested on **Python 3.10, 3.11, 3.12, 3.13, and 3.14**.
+
+## Install
+
+```bash
+uv add re101        # or: pip install re101
+```
+
+## Develop
+
+This project uses [`uv`](https://docs.astral.sh/uv/) for environment and build
+management ([`uv_build`](https://docs.astral.sh/uv/concepts/projects/build-backend/)
+backend), [`ruff`](https://docs.astral.sh/ruff/) for lint/format, and
+[`ty`](https://github.com/astral-sh/ty) for type-checking.
+
+```bash
+uv sync
+uv run pytest
+uv run ruff check
+uv run ty check
+```
 
 ----
 
@@ -38,7 +64,7 @@ Currently, the package supports regexes related to:
 
 Objects exported by the package may be in either `UPPERCASE`, `CamelCase`, or `lower_case`:
 
-- `UPPERCASE`: These are compiled regular expressions, of type `re.Pattern`, which is the result of `re.compile()`.
+- `UPPERCASE`: These are compiled regular expressions, of type `re.Pattern[str]`, which is the result of `re.compile()`.
 - `CamelCase`: These are classes whose `__new__()` method returns a compiled regular expression, but takes a few additional parameters that add optionality to the compiled result.  For instance, the `Number` class lets you allow or disallow leading zeros and commas.
 - `lower_case`: These are traditional functions built around the package's regex constants.  They do not share any consistency in their call syntax or result type.
 
@@ -46,7 +72,7 @@ Objects exported by the package may be in either `UPPERCASE`, `CamelCase`, or `l
 
 Use these regular expressions with care.  It is unlikely that any of them cover 100.00% of the cases that they are intended to cover.  They are built to handle "99.x%" of cases.  With all regular expressions, a balance must be made: covering an incremental 0.1% of cases often requires a large marginal amount of work and code.
 
-If you do notice egregious mistakes or omissions, please consider submitting an issue or pull request.  See the "Contributing" file.
+If you do notice egregious mistakes or omissions, please consider submitting an issue or pull request.
 
 Please assume these expressions are "US-centric" unless noted otherwise.  For instance, the `zipcodes` expression looks only for XXXXX or XXXXX-XXXX zip codes.
 
@@ -66,6 +92,5 @@ Citations are included for "unique" regexes that are copied from a singular sour
 
 These patterns are not currently implemented:
 
-- IPv6 address (RFC 4291)
 - Dates and times (both ISO-8601 and more informal, such as those that can be parsed by Python's `dateutil`)
 - Money/currency (including both the leading or trailing sign, numbers, and punctuation)

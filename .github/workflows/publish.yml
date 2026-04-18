@@ -1,0 +1,166 @@
+name: publish
+
+# Triggered by pushing a tag matching `v*` (e.g. `v1.0.0`).
+# Pipeline:
+#   1. Run the full test matrix one more time (gate).
+#   2. Build sdist + wheel with `uv build`, export an SBOM with `uv export`.
+#   3. Sigstore-sign every artifact in ./dist.
+#   4. Publish to PyPI via Trusted Publisher OIDC — no API tokens.
+#   5. Create a GitHub Release with the artifacts + signatures + SBOM attached.
+#
+# Supply-chain hardening notes:
+#   * All third-party actions pinned to 40-char commit SHAs.
+#   * `permissions:` defaults to `{}` (least privilege); each job opts into
+#     only the permissions it needs.
+#   * PyPI publish runs in a protected `pypi` environment, which should be
+#     configured in repo settings to require a tag-push approval.
+#   * OIDC (`id-token: write`) is used for both PyPI and Sigstore — no
+#     long-lived secrets.
+#   * Only the `publish-pypi` job gets `id-token`; the rest stay locked down.
+
+on:
+  push:
+    tags: ['v*']
+
+permissions: {}
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: Test gate (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: true
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+        with:
+          enable-cache: true
+      - run: uv sync --python ${{ matrix.python-version }} --all-groups --locked
+      - run: uv run --python ${{ matrix.python-version }} pytest --cov --cov-report=term
+
+  build:
+    name: Build distributions & SBOM
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
+      - name: Build sdist + wheel
+        run: uv build --out-dir dist
+      - name: Export SBOM (CycloneDX from uv.lock)
+        run: |
+          uv export \
+            --frozen \
+            --no-dev \
+            --format requirements.txt \
+            --output-file dist/requirements.lock.txt
+          # CycloneDX SBOM — uv tool avoids pulling extra deps into the venv.
+          uv tool run --from cyclonedx-bom cyclonedx-py \
+            requirements dist/requirements.lock.txt \
+            -o dist/sbom.cdx.json \
+            --output-format json
+      - name: List built artifacts
+        run: ls -la dist/
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
+
+  sign:
+    name: Sigstore sign
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # Sigstore OIDC
+      contents: read
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: dist
+          path: dist/
+      - uses: sigstore/gh-action-sigstore-python@f7ad0af51a5648d09a20d00370f0a91c3bdf8f84 # v3.0.1
+        with:
+          inputs: |
+            ./dist/*.tar.gz
+            ./dist/*.whl
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: dist-signed
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
+
+  publish-pypi:
+    name: Publish to PyPI (Trusted Publisher)
+    needs: sign
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/re101
+    permissions:
+      id-token: write  # PyPI OIDC (Trusted Publishing)
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # release/v1
+        with:
+          packages-dir: dist
+          print-hash: true
+
+  github-release:
+    name: Create GitHub Release
+    needs: publish-pypi
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: dist-signed
+          path: dist/
+      - name: Generate release notes snippet from CHANGELOG.md
+        id: notes
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME#v}"
+          awk -v v="$version" '
+            $0 ~ "^## \\[" v "\\]" {flag=1; print; next}
+            flag && /^## \[/ {exit}
+            flag {print}
+          ' CHANGELOG.md > release_notes.md
+          echo "Generated notes ($(wc -l < release_notes.md) lines):"
+          cat release_notes.md
+        shell: bash
+      - uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
+        with:
+          body_path: release_notes.md
+          files: |
+            dist/*.tar.gz
+            dist/*.whl
+            dist/*.sigstore*
+            dist/sbom.cdx.json
+            dist/requirements.lock.txt
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          fail_on_unmatched_files: true

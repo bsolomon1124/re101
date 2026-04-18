@@ -1,0 +1,64 @@
+version: '3'
+
+# Shortcuts for common developer tasks.
+# Run `task --list` to see them all, or `task <name>` to run one.
+
+tasks:
+  default:
+    desc: "Show all tasks"
+    cmds:
+      - task --list
+
+  install:
+    desc: "Create/refresh the dev venv"
+    cmds:
+      - uv sync --all-groups
+
+  fmt:
+    desc: "Auto-format source with ruff"
+    cmds:
+      - uv run ruff format .
+      - uv run ruff check --fix .
+
+  lint:
+    desc: "Run lint + format check + type check + markdownlint"
+    cmds:
+      - uv run ruff check .
+      - uv run ruff format --check .
+      - uv run ty check
+      - npx --yes markdownlint-cli2 "**/*.md" "#.venv" "#node_modules"
+
+  test:
+    desc: "Run tests with coverage"
+    cmds:
+      - uv run pytest --cov --cov-report=term
+
+  test-all:
+    desc: "Run tests on every supported Python version"
+    cmds:
+      - for: ['3.10', '3.11', '3.12', '3.13', '3.14']
+        cmd: uv run --isolated --no-project --python {{.ITEM}} --with pytest --with . python -m pytest tests -q
+
+  build:
+    desc: "Build sdist and wheel into ./dist"
+    cmds:
+      - uv build
+
+  clean:
+    desc: "Remove build and cache artifacts"
+    cmds:
+      - rm -rf dist build .pytest_cache .ruff_cache .ty_cache .coverage htmlcov *.egg-info
+
+  hooks:
+    desc: "Install pre-commit hooks via prek"
+    cmds:
+      - prek install
+
+  hooks-run:
+    desc: "Run all pre-commit hooks against the full tree"
+    cmds:
+      - prek run --all-files
+
+  ci:
+    desc: "Run the full local CI pipeline"
+    deps: [lint, test, build]

@@ -1,0 +1,49 @@
+# Managed with `prek` (https://github.com/j178/prek) — a Rust re-implementation
+# of pre-commit with an identical config format.  Run `prek install` once to
+# wire up the git hooks, then `prek run --all-files` to check the whole tree.
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-ast
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: mixed-line-ending
+        args: [--fix=lf]
+
+  # Everything below runs the project's pinned tool version through `uv run`
+  # so hook output cannot drift from CI output.
+
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff check
+        language: system
+        entry: uv run ruff check --force-exclude --fix
+        types_or: [python, pyi]
+        require_serial: true
+
+      - id: ruff-format
+        name: ruff format
+        language: system
+        entry: uv run ruff format --force-exclude
+        types_or: [python, pyi]
+        require_serial: true
+
+      - id: ty-check
+        name: ty check
+        language: system
+        entry: uv run ty check
+        types_or: [python, pyi]
+        pass_filenames: false
+        require_serial: true
+
+      - id: markdownlint-cli2
+        name: markdownlint-cli2
+        language: system
+        entry: npx --yes markdownlint-cli2
+        types: [markdown]
+        require_serial: true

@@ -1,0 +1,8 @@
+{
+  // Modern prose doesn't need 80-col wrapping.
+  "MD013": false,
+  // Keep a Changelog intentionally repeats "Added"/"Changed"/etc. headings.
+  "MD024": { "siblings_only": true },
+  // Bibliographies in README list bare URLs by design.
+  "MD034": false
+}
