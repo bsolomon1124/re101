@@ -74,3 +74,7 @@ Use Taskfile shortcuts (`task --list`) or their underlying invocations:
 - `Number` / `Integer` / `Decimal` anchor on whitespace/string bounds
   and will not match mid-token.
 - `MONEYSIGN` is a `str`, not a `Pattern`.
+
+## Pull request titles
+
+Follow Conventional Commits format: `<type>: <description>` (e.g. `chore: update dependencies`, `fix: handle edge case`, `feat: add new pattern`).
