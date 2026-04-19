@@ -60,25 +60,33 @@ jobs:
           persist-credentials: false
       - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
       - name: Build sdist + wheel
+        # Only `*.whl` and `*.tar.gz` may live under `dist/` — PyPI upload
+        # fails on anything else.  SBOM + lockfile go to `build-meta/`.
         run: uv build --out-dir dist
       - name: Export SBOM (CycloneDX from uv.lock)
         run: |
+          mkdir -p build-meta
           uv export \
             --frozen \
             --no-dev \
             --format requirements.txt \
-            --output-file dist/requirements.lock.txt
-          # CycloneDX SBOM — uv tool avoids pulling extra deps into the venv.
+            --output-file build-meta/requirements.lock.txt
           uv tool run --from cyclonedx-bom cyclonedx-py \
-            requirements dist/requirements.lock.txt \
-            -o dist/sbom.cdx.json \
+            requirements build-meta/requirements.lock.txt \
+            -o build-meta/sbom.cdx.json \
             --output-format json
       - name: List built artifacts
-        run: ls -la dist/
+        run: ls -la dist/ build-meta/
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: dist
           path: dist/
+          if-no-files-found: error
+          retention-days: 7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: build-meta
+          path: build-meta/
           if-no-files-found: error
           retention-days: 7
 
@@ -118,8 +126,17 @@ jobs:
     steps:
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: dist
+          name: dist-signed
           path: dist/
+      - name: Strip non-distribution files from dist/
+        # PyPI upload rejects anything that isn't a wheel/sdist (including
+        # .sigstore bundles).  Keep only the packages the publish action
+        # should see; signatures are re-attached in the GitHub Release.
+        run: |
+          shopt -s extglob
+          rm -f dist/!(*.whl|*.tar.gz)
+          ls -la dist/
+        shell: bash
       - uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # release/v1
         with:
           packages-dir: dist
@@ -139,6 +156,10 @@ jobs:
         with:
           name: dist-signed
           path: dist/
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: build-meta
+          path: build-meta/
       - name: Generate release notes snippet from CHANGELOG.md
         id: notes
         run: |
@@ -159,8 +180,8 @@ jobs:
             dist/*.tar.gz
             dist/*.whl
             dist/*.sigstore*
-            dist/sbom.cdx.json
-            dist/requirements.lock.txt
+            build-meta/sbom.cdx.json
+            build-meta/requirements.lock.txt
           draft: false
           prerelease: ${{ contains(github.ref_name, '-') }}
           fail_on_unmatched_files: true
